@@ -7,7 +7,7 @@ import sys
 #
 #and the start of argv list is the name of the script, so we skip it
 def check_args():
-    if len(sys.argv) != 3:
+    if not len(sys.argv) >= 3:
         print("not enough arguments!")
         exit(-1)
 
@@ -19,10 +19,11 @@ def read_file():
         except Exception as e:
             print(str(e))
             exit(-1)
+    return data
 
 #constant values, used to compute actual position of tile in game
 def extract_constans(data):
-    return {"width":data["width"],"height":data["height"],"tile_width":data["tile_width"],"tile_height":data["tile_height"]}
+    return {"width":data["width"],"height":data["height"],"tile_width":data["tilewidth"],"tile_height":data["tileheight"]}
 
 def get_layer(number,data):
     if number <= len(data["layers"]):
@@ -53,3 +54,13 @@ def get_tiles(tile_layer,constants):
                 y_pos = y*constans["tile_height"]
                 positions.append((int(code),x_pos,y_pos))
     return positions
+
+
+
+
+#run script
+if __name__ == "__main__":
+    check_args()
+    data = read_file()
+    constants = extract_constans(data)
+    
