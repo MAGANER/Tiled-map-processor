@@ -33,8 +33,14 @@ def get_layer(number,data):
 def get_layer_by_name(name,data):
     for n in range(len(data["layers"])):
         if name in data["layers"][n]["name"]:
-            return data["layers"][n]
+            return data["layers"][n]["data"]
     return []
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 #Tiled doesn't store map as matrix regular matrix,
 #but it saves map(it's actually a matrix) in 1d array
@@ -44,23 +50,58 @@ def get_layer_by_name(name,data):
 
 #get list of tile's code and it's position(in pixels)
 def get_tiles(tile_layer,constants):
-    positions = []
+    #skip empty layers
+    if not tile_layer:
+        return []
+
+    #convert layer into matrix
+    tile_layer = list(chunks(tile_layer,constants["width"]))
+    
+    positions = []#result is stored here
     for y in range(0,constants["height"]):
         for x in range(0,constants["width"]):
             code = tile_layer[y][x]
             #skip empty space
             if code != '0':
-                x_pos = x*constans["tile_width"]
-                y_pos = y*constans["tile_height"]
+                x_pos = x*constants["tile_width"]
+                y_pos = y*constants["tile_height"]
                 positions.append((int(code),x_pos,y_pos))
     return positions
 
+#left value is name of list that will appear in output file
+#right one is list of layers' names from input file
+#NOTE:left value "tiles" is kind of keyword, so it will be used
+#to process tile data
+def parse_args():
+    args = sys.argv[3:]
+    parsed = {}
+    for a in args:
+        left, right = a.split("=")
+        right = right.split(",")
+        parsed[left] = right
+    return parsed
 
 
+
+def get_tiles_layers(data,names,constants):
+    tiles = []
+    for n in names:
+        try: 
+            tiles = tiles + get_tiles(get_layer_by_name(n,data),constants)
+        except Exception as e:
+            print(str(e))
+    return tiles
 
 #run script
 if __name__ == "__main__":
     check_args()
     data = read_file()
     constants = extract_constans(data)
+    args = parse_args()
+
+    output = {}
+    for key in args.keys():
+        if key == "tiles":
+            output["tiles"] = get_tiles_layers(data,args[key],constants)
+    print(output["tiles"])
     
