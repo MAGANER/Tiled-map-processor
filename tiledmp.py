@@ -103,8 +103,8 @@ def get_tiles_layers(data,names,constants):
 def filter_layer_with_names(data,layer_name,names):
     layer = get_layer_by_name(layer_name,data)
     if not names or len(names) == 1 and names[0] == "":
-        print("Warning:no names provided to filter {}!".format(layer_name))
-        return layer
+        print("Error:no names provided to filter {}!".format(layer_name))
+        exit(-1)
     else:
         return list(filter(lambda n:n["name"] in names,layer))
 
