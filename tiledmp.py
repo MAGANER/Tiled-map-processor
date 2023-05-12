@@ -40,6 +40,8 @@ def get_layer_by_name(name,data):
                 return data["layers"][n]["data"]
             else:
                 return data["layers"][n]["objects"]
+
+    print("Warning: name '{}' wasn't found in the layer!".format(name))
     return []
 
 
@@ -116,6 +118,7 @@ def extract_data(filtered_layer):
         new_d["height"] = d["height"]
         new_d["x"] = d["x"]
         new_d["y"] = d["y"]
+        new_d["name"] = d["name"]
         new_data.append(new_d)
     return new_data
 
@@ -149,6 +152,6 @@ if __name__ == "__main__":
 
 
     #write output into file
-    
-                    
-    
+    output_file_name = sys.argv[2]
+    with open(output_file_name,"w") as f:
+        json.dump(output,f)
