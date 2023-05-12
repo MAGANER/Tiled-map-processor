@@ -1,6 +1,6 @@
 import json
 import sys
-
+import re
 
 #first argument is input json-map
 #second argument is output json-map
@@ -27,13 +27,19 @@ def extract_constans(data):
 
 def get_layer(number,data):
     if number <= len(data["layers"]):
-        return data["layers"][number]["data"]
+        if "data" in data["layers"][number]:
+            return data["layers"][number]["data"]
+        else:
+            return data["layers"][number]["objects"]       
     #return empty list if number is out of length
     return []
 def get_layer_by_name(name,data):
     for n in range(len(data["layers"])):
         if name in data["layers"][n]["name"]:
-            return data["layers"][n]["data"]
+            if "data" in data["layers"][n]:
+                return data["layers"][n]["data"]
+            else:
+                return data["layers"][n]["objects"]
     return []
 
 
@@ -70,19 +76,18 @@ def get_tiles(tile_layer,constants):
 
 #left value is name of list that will appear in output file
 #right one is list of layers' names from input file
-#NOTE:left value "tiles" is kind of keyword, so it will be used
-#to process tile data
+
+#NOTE:left value "tiles" is kind of keyword, so it will be used to process tile data
 def parse_args():
     args = sys.argv[3:]
     parsed = {}
     for a in args:
         left, right = a.split("=")
-        right = right.split(",")
         parsed[left] = right
     return parsed
 
-
-
+#cycle through all layers, containing tiles
+# uniting them into one big tile data list
 def get_tiles_layers(data,names,constants):
     tiles = []
     for n in names:
@@ -92,16 +97,58 @@ def get_tiles_layers(data,names,constants):
             print(str(e))
     return tiles
 
+#get all dicts from specific layer, which name's value matches with one from list
+def filter_layer_with_names(data,layer_name,names):
+    layer = get_layer_by_name(layer_name,data)
+    if not names or len(names) == 1 and names[0] == "":
+        print("Warning:no names provided to filter {}!".format(layer_name))
+        return layer
+    else:
+        return list(filter(lambda n:n["name"] in names,layer))
+
+#get only required data from filtered layer
+def extract_data(filtered_layer):
+    new_data = []
+    for d in filtered_layer:
+        new_d = {}
+        new_d["properties"] = d["properties"]
+        new_d["width"] = d["width"]
+        new_d["height"] = d["height"]
+        new_d["x"] = d["x"]
+        new_d["y"] = d["y"]
+        new_data.append(new_d)
+    return new_data
+
 #run script
 if __name__ == "__main__":
     check_args()
     data = read_file()
     constants = extract_constans(data)
     args = parse_args()
-
     output = {}
+    
     for key in args.keys():
+        #process special reserved keyword and obtain tile
         if key == "tiles":
             output["tiles"] = get_tiles_layers(data,args[key],constants)
-    print(output["tiles"])
+        else:
+            val = args[key]
+            pattern = re.compile(r"\(.*\)")
+            m = pattern.search(val)
+            
+            #get objects with specific names
+            if m:
+                names = m.group(0)[1:-1]
+                names = names.split(",")
+
+                begin = m.span()[0]#get the begin of ( and then we can get the layer's name
+                output[key] = extract_data(filter_layer_with_names(data,val[:begin-1],names))
+            else:
+                #get all
+                output[key] = extract_data(filter_layer_with_names(data,val[:begin-1],[]))
+
+
+    #write output into file
+    
+                    
     
