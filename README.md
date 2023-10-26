@@ -15,9 +15,7 @@ And ```tiles``` as key will have value, represented in form of list, containing 
 For example:```(0,64,32)```, where 0 is tile code, and next values are x and y coordinates.<br>
 
 ### Extracting object layers
-```tiledmp input.json output.json tiles=world monsters=objects(monster) coins=objects(coin,big_coin)```
+```tiledmp input.json output.json tiles=world bodies=land(x,y,width,height)```
 
-In this example we have already known tiles, but we are interested in next arguments.<br>
-```monsters``` is name of key in result file and it has option ```objects(monster)```<br>
-that can be understood as extract all items with name field equals to monster from layer with name that is objects.<br>
-So you can extract different number of items with different names, they are listed between ( and ).<br>
+In this example ```tiles``` will store data related to tiles that are stored in ```world``` layer.<br>
+Also output.json will contain list connected to ```bodies``` key with list that stores data extracted from land layer.<br>
