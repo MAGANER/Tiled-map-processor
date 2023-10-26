@@ -70,10 +70,10 @@ def get_tiles(tile_layer,constants):
         for x in range(0,constants["width"]):
             code = tile_layer[y][x]
             #skip empty space
-            if code != '0':
+            if code != 0:
                 x_pos = x*constants["tile_width"]
                 y_pos = y*constants["tile_height"]
-                positions.append((int(code),x_pos,y_pos))
+                positions.append((code-1,x_pos,y_pos))
     return positions
 
 #left value is name of list that will appear in output file
@@ -122,6 +122,17 @@ def extract_data(filtered_layer):
         new_data.append(new_d)
     return new_data
 
+def extract_data_as_list(layer,keys):
+    data = []
+    for obj in layer:
+        element = []
+        for k in keys:
+            for obj_k in obj.keys():
+                if obj_k == k:
+                    element.append(obj[k])
+        data.append(element)
+    return data
+
 #run script
 if __name__ == "__main__":
     check_args()
@@ -143,12 +154,14 @@ if __name__ == "__main__":
             if m:
                 names = m.group(0)[1:-1]
                 names = names.split(",")
-
+            
                 begin = m.span()[0]#get the begin of ( and then we can get the layer's name
-                output[key] = extract_data(filter_layer_with_names(data,val[:begin-1],names))
+                target_name = val.split("(")[0]
+                target_layer = get_layer_by_name(target_name,data)
+                output[key] = extract_data_as_list(target_layer,names)
             else:
                 #get all
-                output[key] = extract_data(filter_layer_with_names(data,val[:begin-1],[]))
+                output[key] = extract_data(filter_layer_with_names(data,val[:-1],[]))
 
 
     #write output into file
