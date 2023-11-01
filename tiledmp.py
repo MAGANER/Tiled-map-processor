@@ -130,7 +130,8 @@ def extract_data_as_list(layer,keys):
             for obj_k in obj.keys():
                 if obj_k == k:
                     element.append(obj[k])
-        data.append(element)
+        if element not in data:
+            data.append(element)
     return data
 
 #run script
