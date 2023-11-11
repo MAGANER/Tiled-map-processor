@@ -92,7 +92,14 @@ def parse_args():
 # uniting them into one big tile data list
 def get_tiles_layers(data,names,constants):
     tiles = []
-    for n in names:
+
+    _names = []
+    if not isinstance(names,list):
+        _names.append(names)
+    else:
+        _names = names
+        
+    for n in _names:
         try: 
             tiles = tiles + get_tiles(get_layer_by_name(n,data),constants)
         except Exception as e:
@@ -149,7 +156,8 @@ if __name__ == "__main__":
         #try to get special tiles
         if key != "tiles" and key.startswith('-'):
             try:
-                output[key] = get_tiles_layers(data,args[key],constants)
+                print(args[key])
+                output[key[1:]] = get_tiles_layers(data,args[key],constants)
                 special_tiles.append(key)
             except Exception as e:
                 pass       
