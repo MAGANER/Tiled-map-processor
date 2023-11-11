@@ -141,12 +141,24 @@ if __name__ == "__main__":
     constants = extract_constans(data)
     args = parse_args()
     output = {}
-    
+
+    special_tiles = []
     for key in args.keys():
-        #process special reserved keyword and obtain tile
-        if key == "tiles":
+        #process special reserved keyword and obtain tiles
+
+        #try to get special tiles
+        if key != "tiles":
+            print(key)
+            try:
+                output[key] = get_tiles_layers(data,args[key],constants)
+                #print(output[key])
+                special_tiles.append(key)
+            except Exception as e:
+                pass
+            
+        elif key == "tiles":
             output["tiles"] = get_tiles_layers(data,args[key],constants)
-        else:
+        elif key not  in special_tiles:
             val = args[key]
             pattern = re.compile(r"\(.*\)")
             m = pattern.search(val)
@@ -166,6 +178,7 @@ if __name__ == "__main__":
 
 
     #write output into file
+    print(output.keys())
     output_file_name = sys.argv[2]
     with open(output_file_name,"w") as f:
         json.dump(output,f)
