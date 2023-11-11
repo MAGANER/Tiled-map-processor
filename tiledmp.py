@@ -147,22 +147,18 @@ if __name__ == "__main__":
         #process special reserved keyword and obtain tiles
 
         #try to get special tiles
-        if key != "tiles":
-            print(key)
+        if key != "tiles" and key.startswith('-'):
             try:
                 output[key] = get_tiles_layers(data,args[key],constants)
-                #print(output[key])
                 special_tiles.append(key)
             except Exception as e:
-                pass
-            
+                pass       
         elif key == "tiles":
             output["tiles"] = get_tiles_layers(data,args[key],constants)
         elif key not  in special_tiles:
             val = args[key]
             pattern = re.compile(r"\(.*\)")
             m = pattern.search(val)
-            
             #get objects with specific names
             if m:
                 names = m.group(0)[1:-1]
@@ -178,7 +174,6 @@ if __name__ == "__main__":
 
 
     #write output into file
-    print(output.keys())
     output_file_name = sys.argv[2]
     with open(output_file_name,"w") as f:
         json.dump(output,f)
