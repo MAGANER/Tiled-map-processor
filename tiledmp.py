@@ -35,7 +35,7 @@ def get_layer(number,data):
     return []
 def get_layer_by_name(name,data):
     for n in range(len(data["layers"])):
-        if name in data["layers"][n]["name"]:
+        if name == data["layers"][n]["name"]:
             if "data" in data["layers"][n]:
                 return data["layers"][n]["data"]
             else:
@@ -98,9 +98,9 @@ def get_tiles_layers(data,names,constants):
         _names.append(names)
     else:
         _names = names
-        
+
     for n in _names:
-        try: 
+        try:
             tiles = tiles + get_tiles(get_layer_by_name(n,data),constants)
         except Exception as e:
             print(str(e))
@@ -156,7 +156,6 @@ if __name__ == "__main__":
         #try to get special tiles
         if key != "tiles" and key.startswith('-'):
             try:
-                print(args[key])
                 output[key[1:]] = get_tiles_layers(data,args[key],constants)
                 special_tiles.append(key)
             except Exception as e:
