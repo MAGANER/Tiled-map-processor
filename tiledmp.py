@@ -134,11 +134,19 @@ def extract_data_as_list(layer,keys):
     for obj in layer:
         element = []
         for k in keys:
+            #extract things like x,y,width,height
             for obj_k in obj.keys():
                 if obj_k == k:
                     element.append(obj[k])
         if element not in data:
+            if "properties" in obj.keys():
+                for k in keys:
+                    for prop in obj["properties"]:
+                        if k == prop["name"]:
+                            element.append(prop["value"])
+                        
             data.append(element)
+    
     return data
 
 #run script
@@ -170,7 +178,7 @@ if __name__ == "__main__":
             if m:
                 names = m.group(0)[1:-1]
                 names = names.split(",")
-            
+                
                 begin = m.span()[0]#get the begin of ( and then we can get the layer's name
                 target_name = val.split("(")[0]
                 target_layer = get_layer_by_name(target_name,data)
